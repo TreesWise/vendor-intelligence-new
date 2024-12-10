@@ -6,9 +6,9 @@ from dotenv import load_dotenv
 
 load_dotenv(dotenv_path=".env") 
 
-databricks_api = os.getenv("api_token")
-host = os.getenv("host")
-warehouse_id = os.getenv("warehouse_id")
+databricks_api = os.getenv("API_TOKEN")  # From GitHub Secrets
+host = os.getenv("HOST")  # From GitHub Secrets
+warehouse_id = os.getenv("WAREHOUSE_ID")  # From GitHub Secrets
 
 # Databricks connection details
 # host = "adb-1987506542517093.13.azuredatabricks.net"
