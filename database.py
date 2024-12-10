@@ -14,7 +14,6 @@ schema = "Common"  # Schema name
 
 logging.info(f"Using Databricks host: {host}")
 
-
 class SingletonSQLDatabase:
     _instance = None
 
