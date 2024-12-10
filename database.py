@@ -47,5 +47,5 @@ class SingletonSQLDatabase:
         return cls._instance
 
 
-# Eager initialization: create the connection as soon as the module is imported
-SingletonSQLDatabase.get_instance()
+# # Eager initialization: create the connection as soon as the module is imported
+# SingletonSQLDatabase.get_instance()
