@@ -59,14 +59,12 @@ jobs:
       - name: Unzip artifact for deployment
         run: unzip release.zip
 
-      
       - name: 'Deploy to Azure Web App'
         uses: azure/webapps-deploy@v3
         id: deploy-to-webapp
         with:
           app-name: 'Vendor-Intelligence'
-          slot-name: 'Production'
-          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_5AF3A734B6294251ABBF657D0C558FDF }}
+          publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
 
       - name: Set environment variables for deployment
         run: |
@@ -74,7 +72,7 @@ jobs:
           echo "HOST=${{ secrets.HOST }}" >> $GITHUB_ENV
           echo "OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}" >> $GITHUB_ENV
           echo "WAREHOUSE_ID=${{ secrets.WAREHOUSE_ID }}" >> $GITHUB_ENV
-          
+
       - name: Start app with environment variables
         run: |
           echo "Starting the app with environment variables..."
