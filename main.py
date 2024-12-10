@@ -171,6 +171,6 @@ async def handle_query(userinput: ModelInput) -> Dict:
         return {"response": f"Database '{table_name}' is not supported."}
 
 # Run the FastAPI app (if needed for standalone execution)
-if __name__ == "__main__":
-    import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+# if __name__ == "__main__":
+#     import uvicorn
+#     uvicorn.run(app, host="0.0.0.0", port=8000)
