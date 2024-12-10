@@ -1,18 +1,15 @@
 import logging
 from langchain_community.utilities.sql_database import SQLDatabase
 import os
-from dotenv import load_dotenv
 
-databricks_api = os.getenv("API_TOKEN")  # From GitHub Secrets
-host = os.getenv("HOST")  # From GitHub Secrets
-warehouse_id = os.getenv("WAREHOUSE_ID")  # From GitHub Secrets
+# Fetch credentials from environment variables
+api_token = os.getenv("API_TOKEN")
+host = os.getenv("HOST")
+warehouse_id = os.getenv("WAREHOUSE_ID")
 
 # Databricks connection details
-# host = "adb-1987506542517093.13.azuredatabricks.net"
-api_token = databricks_api
 catalog = "hive_metastore"  # Catalog name
 schema = "Common"  # Schema name
-# warehouse_id = "3248efb5151bc56e"
 
 logging.info(f"Using Databricks host: {host}")
 
@@ -25,12 +22,14 @@ class SingletonSQLDatabase:
         if cls._instance is None:
             logging.info("Creating new SQLDatabase instance...")
             try:
+                # Adjust timeout and other parameters as needed
                 cls._instance = SQLDatabase.from_databricks(
                     catalog=catalog,
                     schema=schema,
                     api_token=api_token,
                     host=host,
                     warehouse_id=warehouse_id,
+                    timeout=120  # Set timeout to 2 minutes (adjustable)
                 )
                 logging.info("SQLDatabase instance created successfully.")
             except Exception as e:
