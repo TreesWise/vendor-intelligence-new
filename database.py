@@ -3,9 +3,6 @@ from langchain_community.utilities.sql_database import SQLDatabase
 import os
 from dotenv import load_dotenv
 
-
-load_dotenv(dotenv_path=".env") 
-
 databricks_api = os.getenv("API_TOKEN")  # From GitHub Secrets
 host = os.getenv("HOST")  # From GitHub Secrets
 warehouse_id = os.getenv("WAREHOUSE_ID")  # From GitHub Secrets
