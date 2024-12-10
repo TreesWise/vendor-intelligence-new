@@ -1,3 +1,4 @@
+import time
 import logging
 from langchain_community.utilities.sql_database import SQLDatabase
 import os
@@ -21,17 +22,17 @@ class SingletonSQLDatabase:
         """Create or return the singleton instance of the database connection."""
         if cls._instance is None:
             logging.info("Creating new SQLDatabase instance...")
+            start_time = time.time()
             try:
-                # Adjust timeout and other parameters as needed
                 cls._instance = SQLDatabase.from_databricks(
                     catalog=catalog,
                     schema=schema,
                     api_token=api_token,
                     host=host,
-                    warehouse_id=warehouse_id,
-                    timeout=120  # Set timeout to 2 minutes (adjustable)
+                    warehouse_id=warehouse_id
                 )
-                logging.info("SQLDatabase instance created successfully.")
+                end_time = time.time()
+                logging.info(f"SQLDatabase instance created successfully in {end_time - start_time} seconds.")
             except Exception as e:
                 logging.error("Error creating SQLDatabase instance:", exc_info=True)
                 raise RuntimeError("Failed to initialize SQLDatabase")
@@ -42,7 +43,7 @@ class SingletonSQLDatabase:
         """Return the existing singleton instance."""
         if cls._instance is None:
             logging.warning("SQLDatabase instance is not created yet. Creating it now...")
-            cls()
+            cls()  # Calls __new__() to create the instance
         return cls._instance
 
 
