@@ -9,6 +9,7 @@ from langchain_core.messages import AIMessage, SystemMessage
 from langchain_community.utilities.sql_database import SQLDatabase
 from database import SingletonSQLDatabase  # Import the Singleton connection instance
 from custom_datatypes import ModelInput
+from langchain_community.agent_toolkits.sql.base import create_sql_agent
 
 # OpenAI API Key
 openai_api_key = os.getenv("OPENAI_API_KEY")
