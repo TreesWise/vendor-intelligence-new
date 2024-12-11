@@ -85,7 +85,6 @@ jobs:
         run: |
           source venv/bin/activate
           echo "Starting the app with environment variables..."
-          gunicorn -w 4 -k uvicorn.workers.UvicornWorker --timeout 180 --bind 0.0.0.0:8000 main:app
         env:
           API_TOKEN: ${{ secrets.API_TOKEN }}
           HOST: ${{ secrets.HOST }}
