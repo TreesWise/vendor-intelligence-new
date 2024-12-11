@@ -37,7 +37,7 @@ async def handle_query(userinput: ModelInput, db: SQLDatabase = Depends(get_db_c
         # Initialize the SQLDatabaseToolkit with LLM and the database
         toolkit = SQLDatabaseToolkit(llm=llm, db=db)
         dialect = toolkit.dialect
-
+        top_k = 10
         # Construct the prompt with the provided user input
         prefix = f"""
         You are an agent designed to interact with a SQL database to answer questions.
