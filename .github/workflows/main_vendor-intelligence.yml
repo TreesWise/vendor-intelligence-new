@@ -81,19 +81,12 @@ jobs:
           source venv/bin/activate
           pip install -r requirements.txt
 
-      - name: Set environment variables globally
+      - name: Ensure .env file is loaded
         run: |
-          echo "API_TOKEN=${{ secrets.API_TOKEN }}" >> $GITHUB_ENV
-          echo "HOST=${{ secrets.HOST }}" >> $GITHUB_ENV
-          echo "OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}" >> $GITHUB_ENV
-          echo "WAREHOUSE_ID=${{ secrets.WAREHOUSE_ID }}" >> $GITHUB_ENV
+          echo "Verifying .env file..."
+          cat .env
 
-      - name: Start app with environment variables
+      - name: Start app with .env variables
         run: |
           source venv/bin/activate
-          echo "Starting the app with environment variables..."
-        env:
-          API_TOKEN: ${{ secrets.API_TOKEN }}
-          HOST: ${{ secrets.HOST }}
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-          WAREHOUSE_ID: ${{ secrets.WAREHOUSE_ID }}
+          echo "Starting the app with .env variables..."
