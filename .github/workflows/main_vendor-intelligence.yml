@@ -78,4 +78,3 @@ jobs:
         run: |
           source venv/bin/activate
           echo "Starting the app..."
-          python app.py  # Replace `app.py` with your app's entry point
