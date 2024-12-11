@@ -22,13 +22,11 @@ app = FastAPI()
 def keep_connection_alive():
     try:
         db = SingletonSQLDatabase.get_instance()  # Get the singleton database instance
-        connection = db.get_connection()  # Get the raw connection or cursor
-        with connection.cursor() as cursor:
-            cursor.execute("SELECT 1")  # Execute a simple query to keep the connection alive
-            connection.commit()  # Commit if necessary (for certain databases)
+        db.run("SELECT 1")  # Execute a simple query to keep the connection alive
         logging.info("Database connection kept alive.")
     except Exception as e:
         logging.error("Error in keep_connection_alive:", exc_info=True)
+
 
 # Initialize APScheduler
 scheduler = BackgroundScheduler()
