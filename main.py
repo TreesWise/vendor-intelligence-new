@@ -10,12 +10,28 @@ from langchain_community.utilities.sql_database import SQLDatabase
 from database import SingletonSQLDatabase  # Import the Singleton connection instance
 from custom_datatypes import ModelInput
 from langchain_community.agent_toolkits.sql.base import create_sql_agent
+from apscheduler.schedulers.background import BackgroundScheduler
 
 # OpenAI API Key
 openai_api_key = os.getenv("OPENAI_API_KEY")
 
 # Initialize FastAPI application
 app = FastAPI()
+
+# Function to keep the database connection alive
+def keep_connection_alive():
+    try:
+        db = SingletonSQLDatabase.get_instance()  # Get the singleton database instance
+        db.query("SELECT 1")  # Execute a simple query to keep the connection alive
+        logging.info("Database connection kept alive.")
+    except Exception as e:
+        logging.error("Error in keep_connection_alive:", exc_info=True)
+
+# Initialize APScheduler
+scheduler = BackgroundScheduler()
+
+# Schedule the keep_connection_alive task to run every 10 seconds
+scheduler.add_job(keep_connection_alive, 'interval', seconds=10)
 
 # Function to get the database connection via dependency injection
 def get_db_connection():
@@ -39,6 +55,7 @@ async def handle_query(userinput: ModelInput, db: SQLDatabase = Depends(get_db_c
         toolkit = SQLDatabaseToolkit(llm=llm, db=db)
         dialect = toolkit.dialect
         top_k = 10
+
         # Construct the prompt with the provided user input
         prefix = f"""
         You are an agent designed to interact with a SQL database to answer questions.
@@ -110,3 +127,13 @@ async def handle_query(userinput: ModelInput, db: SQLDatabase = Depends(get_db_c
 @app.get("/")
 def read_root():
     return {"message": "Welcome to my FastAPI app!"}
+
+# Start the scheduler on app startup
+@app.on_event("startup")
+async def startup():
+    scheduler.start()
+
+# Shutdown the scheduler on app shutdown
+@app.on_event("shutdown")
+async def shutdown():
+    scheduler.shutdown()
