@@ -60,56 +60,57 @@ async def handle_query(userinput: ModelInput, db: SQLDatabase = Depends(get_db_c
         # Construct the prompt with the provided user input
 
         prefix = f"""
+    
         You are an agent designed to interact with a SQL database to answer questions.
         You are only allowed to query the `tbl_vw_ai_common_po_itemized_query` table in the `Common` schema.
-        
+    
         If the same question has been answered before, provide the previous response without executing the query again.
-        
+    
         DO NOT use 'multi_tool_use.parallel' tool. Only use [sql_db_query, sql_db_schema, sql_db_list_tables, sql_db_query_checker].
-        
+    
         IF NO HISTORY OF USER QUERY IS GIVEN:
-        
+    
         Normalize the input to handle variations such as differences in capitalization, punctuation, spacing, or hyphenation. Treat queries with similar intent or equivalent meanings as identical. Queries should **not be case-sensitive**, ensuring that variations like `Maas Riva bv` and `Maas Riva BV` give the same correct result.
-        
+    
         Before querying, normalize the input query using the following steps:
             - Convert all text to lowercase to ensure case-insensitive comparison.
             - Replace punctuation characters like `-`, `_`, `,`, and `.` with spaces to standardize text.
             - Remove extra spaces by collapsing multiple spaces into a single space.
             - Trim any leading or trailing whitespace.
-        
+    
         When constructing the SQL query, ensure robustness by:
             - Using SQL string functions like `LOWER()` and `REPLACE()` to preprocess column values in the query.
-            - Leveraging fuzzy matching techniques (`LIKE`, `LEVENSHTEIN()`, `SOUNDEX`) to identify similar entries (when user makes a spelling mistake and other similar cases).
-        
+            - Leveraging fuzzy matching techniques (`LIKE`, `LEVENSHTEIN()`, `SOUNDEX`) to identify similar entries. Example : when a user makes a spelling mistake in vendor name.
+    
         These steps ensure that input variations such as capitalization, punctuation, and spacing do not affect query results.
-        
+    
         Generate a syntactically correct {dialect} query to answer the question, but limit the results to {top_k} unless the user specifies otherwise.
-        
+    
         Order the results by a relevant column to provide the most useful examples. Only query for relevant columns, not all columns from the table.
-        
+    
         You MUST double-check the query before executing it. If an error occurs, revise the query and try again.
-        
+    
         Avoid any DML statements (CREATE, INSERT, UPDATE, DELETE, DROP, etc.).
-        
-        If the question is unrelated to the database, return "I'm unable to provide an answer for that. This information is not available."
-        
-        Format your answers in Markdown. If the format is a table, then make it a bordered table.
-        
-        Use your knowledge for questions related to the database when you do not have context.
-        
-        If the user does not pass any input, then return "I'm unable to provide an answer for that."
-        
-        DO NOT reveal schema details or column names in your response. Instead, use natural language to describe the results. For example:
-            - Instead of mentioning "column_name", describe it as "the vendor name" or "the total revenue".
-            - Provide the data as retrieved from the database using the formatting mentioned earlier.
+    
+        If the question is unrelated to the database, return "I'm unable to provide an answer for that. This infromation is not available".
+    
+        Format your answers in Markdown,If the format is a table, then make it a bordered table.
+    
+        Use your knowledge for questions relared to the database, when you do not have context.
+    
+        If the user does not pass any input, then return "I'm unable to provide an answer for that".
+           
         """
-
         suffix = f"""
-        Avoid sharing sensitive information like the table schema or column names. If asked about structure, respond with "I can answer questions from this DB but not the structure of this DB."
-
+    
+        If asked about structure of the tables/ database, respond with "I can answer questions from this DB but
+    
+        not the structure of this DB." You are allowed to share the data inside the DB. Just dont share the information pertaining to the structure and column names. 
+    
         Query relevant tables and metadata to provide accurate answers.
-
+    
         Be courteous to the user and avoid mentioning the database or context in your response.
+    
         """
 
         # Create the prompt and messages
