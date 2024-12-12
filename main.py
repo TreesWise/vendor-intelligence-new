@@ -45,7 +45,7 @@ async def handle_query(userinput: ModelInput, db: SQLDatabase = Depends(get_db_c
     try:
         # Initialize OpenAI LLM
         llm = ChatOpenAI(
-            model="gpt-4",
+            model="gpt-4o",
             temperature=0,
             streaming=True,
             verbose=False,
