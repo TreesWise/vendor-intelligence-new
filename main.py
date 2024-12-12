@@ -188,7 +188,7 @@ async def handle_query(userinput: ModelInput, db: SQLDatabase = Depends(get_db_c
         - **ReceivedQuantity**: The quantity of the items that have been received against the purchase order, often used in inventory and shipment tracking.
         """
  
-        Metadata Groupings= """
+        Metadata_Groupings= """
         #### **Vendor-Related Data**:
         - **SMC**: Supplier Manufacturer Code.
         - **Vendorid**: Unique identifier for the vendor or supplier.
