@@ -82,7 +82,7 @@ async def handle_query(userinput: ModelInput, db: SQLDatabase = Depends(get_db_c
         4. Order results by **relevant columns** for clarity (e.g., `ApprovedDate DESC` for recent approvals).
         5. Validate query syntax before execution to ensure success and eliminate errors.
         6. Incorporate conditions for **filtering by user intent** and domain-specific logic (e.g., fetching purchase orders for a particular `VesselName` or `SMC`).
-        
+        7. When queried regarding **unique vendors**, the unique vendors are supposed to be calculated based on  **VENDOREMAIL**
         ### Rules of Engagement:
         - Do not perform Data Manipulation Language (DML) operations such as `INSERT`, `UPDATE`, or `DELETE`.
         - Use **Markdown format** for presenting results:
