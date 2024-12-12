@@ -187,6 +187,62 @@ async def handle_query(userinput: ModelInput, db: SQLDatabase = Depends(get_db_c
         - **ItemDescription**: A detailed description of the item, providing information about its specifications, use cases, or features.
         - **ReceivedQuantity**: The quantity of the items that have been received against the purchase order, often used in inventory and shipment tracking.
         """
+ 
+        Metadata Groupings= """
+        #### **Vendor-Related Data**:
+        - **SMC**: Supplier Manufacturer Code.
+        - **Vendorid**: Unique identifier for the vendor or supplier.
+        - **VendorName**: Name of the vendor or supplier.
+        - **VENDORCODE**: Unique code for vendor classification.
+        - **VENDORCOUNTRY**: Vendor's country of operation.
+        - **VENDOREMAIL**, **VENDORPHONE**: Vendor's email and phone contact.
+        - **VENDORAPPROVALSTATUS**: Approval status of the vendor.
+        - **VENDOR_REMARKS**: Vendor-provided remarks.
+        - **REMARKS_TO_VENDOR**: Notes addressed to the vendor.
+        
+        #### **Purchase Order-Related Data**:
+        - **PoNumber**: Unique identifier for the purchase order.
+        - **pocategory**: Category of the purchase order.
+        - **pocategory_id**: Unique identifier for the purchase order category.
+        - **poitemcount**: Total number of items in the purchase order.
+        - **BaseCurrency**, **BaseAmount**: Currency and total amount details.
+        - **POSENTDATE**: Date when the purchase order was entered.
+        - **ApprovedDate**, **APPROVAL_FLAG**: Approval date and status of the purchase order.
+        - **po_amount_usd**, **PO_USD_VALUE**: USD values for the purchase order.
+        - **Po_ApprovedDate**: Approval date of the purchase order.
+        - **Po_Title**: Title or description of the purchase order.
+        
+        #### **Item and Equipment-Related Data**:
+        - **ITEM_ID**, **ITEM_DESCRIPTION**: Unique identifier and description of the item.
+        - **ITEM_CATEGORY**, **ITEM_CATEGORY_id**: Category and classification of the item.
+        - **ITEM_SECTION**, **ITEM_CODE**: Subgroup and unique code for the item.
+        - **UNIT_PRICE**, **UNIT_PRICE_USD**: Price per unit (local and USD).
+        - **QUANTITY**, **Received_Qty**, **ReceivedQuantity**: Quantity details.
+        - **Packing_UOM**: Unit of measurement for packing.
+        - **MD_REQUIRED**, **SDoC_REQUIRED**: Flags for required documentation.
+        - **Maker**: Manufacturer of the item or equipment.
+        - **DrawingNo**, **EQUIPMENT_TYPE**: Equipment details.
+        
+        #### **Vessel-Related Data**:
+        - **VesselName**: Name of the vessel.
+        - **IMONumber**: International Maritime Organization (IMO) number.
+        - **Vessel_Objectid**, **Vessel_Id1**: Unique identifiers for the vessel.
+        - **GRNNO_VESSEL**: Goods Receipt Note (GRN) number for the vessel.
+        
+        #### **Account-Related Data**:
+        - **Account_Code**, **Account_Name**: Account identifiers and names.
+        - **Account_Details**: Additional details about the account.
+        - **Analysis_Code**, **Analysis_Name**: Categorization codes and their descriptions.
+        - **Sub_account_Code**, **Sub_Account_Name**: Sub-account codes and names.
+        
+        #### **Additional Data**:
+        - **GRNNO_AGENT_WAREHOUSE**: Goods Receipt Note (GRN) for the agent’s warehouse.
+        - **SchdDeliveryPort**: Scheduled delivery port.
+        - **Service_Description**: Description of services provided.
+        - **DrawingNo**, **EQUIPMENT_TYPE**: Technical details about the equipment.
+
+        """
+
         
         suffix = """
         If asked about the database structure, table design, or unavailable data, respond politely:
