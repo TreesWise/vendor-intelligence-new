@@ -1,48 +1,48 @@
-import time
+import os
 import logging
 import threading
-import os
 from langchain_community.utilities.sql_database import SQLDatabase
 
 # Fetch credentials from environment variables
-api_token = os.getenv("API_TOKEN")
-host = os.getenv("HOST")
-warehouse_id = os.getenv("WAREHOUSE_ID")
+API_TOKEN = os.getenv("API_TOKEN")
+HOST = os.getenv("HOST")
+WAREHOUSE_ID = os.getenv("WAREHOUSE_ID")
 
 # Databricks connection details
-catalog = "hive_metastore"
-schema = "Common"
+CATALOG = "hive_metastore"
+SCHEMA = "Common"
 
-logging.info(f"Using Databricks host: {host}")
+logging.info(f"Using Databricks host: {HOST}")
 
 class SingletonSQLDatabase:
+    """Thread-safe Singleton for managing a shared SQLDatabase instance."""
     _instance = None
-    _lock = threading.Lock()  # Lock to ensure thread-safe access
+    _lock = threading.Lock()
 
     def __new__(cls):
-        """Create or return the singleton instance of the database connection."""
-        with cls._lock:  # Ensure only one thread initializes the instance
-            if cls._instance is None:
-                logging.info("Creating new SQLDatabase instance...")
-                try:
-                    # Establish the connection using the credentials
-                    cls._instance = SQLDatabase.from_databricks(
-                        catalog=catalog,
-                        schema=schema,
-                        api_token=api_token,
-                        host=host,
-                        warehouse_id=warehouse_id
-                    )
-                    logging.info("SQLDatabase instance created successfully.")
-                except Exception as e:
-                    logging.error("Error creating SQLDatabase instance:", exc_info=True)
-                    raise RuntimeError("Failed to initialize SQLDatabase")
+        """Create or return the singleton instance."""
+        if not cls._instance:
+            with cls._lock:
+                if not cls._instance:  # Double-check for thread safety
+                    logging.info("Initializing SQLDatabase instance...")
+                    cls._instance = cls._initialize_instance()
         return cls._instance
 
     @classmethod
+    def _initialize_instance(cls):
+        try:
+            return SQLDatabase.from_databricks(
+                catalog=CATALOG,
+                schema=SCHEMA,
+                api_token=API_TOKEN,
+                host=HOST,
+                warehouse_id=WAREHOUSE_ID,
+            )
+        except Exception as e:
+            logging.error("Failed to initialize SQLDatabase:", exc_info=True)
+            raise RuntimeError("Failed to initialize SQLDatabase") from e
+
+    @classmethod
     def get_instance(cls):
-        """Return the existing singleton instance."""
-        if cls._instance is None:
-            logging.warning("SQLDatabase instance is not created yet. Creating it now...")
-            cls()  # Calls __new__() to create the instance if it doesn't exist
-        return cls._instance
+        """Retrieve the existing singleton instance."""
+        return cls.__new__(cls)
