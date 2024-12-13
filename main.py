@@ -102,7 +102,7 @@ async def handle_query(userinput: ModelInput, db: SQLDatabase = Depends(get_db_c
         """
         
         column_metadata = """
-        - **SMC**: The SMC (Supplier Manufacturer Code) uniquely identifies the manufacturer or supplier of the items.
+        - **SMC**: The SMC (ship management centres) are specialized facilities or organizations responsible for overseeing the efficient and effective operation of a fleet of ships.
         - **Account_Code**: The unique code assigned to the account for the purpose of financial tracking or reporting.
         - **Account_Name**: The name associated with the account, typically representing the entity or individual that holds the account.
         - **Account_Details**: Additional details or descriptions about the account, including terms, conditions, and other relevant information.
@@ -190,7 +190,6 @@ async def handle_query(userinput: ModelInput, db: SQLDatabase = Depends(get_db_c
  
         Metadata_Groupings= """
         #### **Vendor-Related Data**:
-        - **SMC**: Supplier Manufacturer Code.
         - **Vendorid**: Unique identifier for the vendor or supplier.
         - **VendorName**: Name of the vendor or supplier.
         - **VENDORCODE**: Unique code for vendor classification.
@@ -224,6 +223,7 @@ async def handle_query(userinput: ModelInput, db: SQLDatabase = Depends(get_db_c
         - **DrawingNo**, **EQUIPMENT_TYPE**: Equipment details.
         
         #### **Vessel-Related Data**:
+        - **SMC**: ship management centres.
         - **VesselName**: Name of the vessel.
         - **IMONumber**: International Maritime Organization (IMO) number.
         - **Vessel_Objectid**, **Vessel_Id1**: Unique identifiers for the vessel.
