@@ -231,6 +231,7 @@ async def handle_query(userinput: ModelInput, db: SQLDatabase = Depends(get_db_c
         
         #### **Account-Related Data**:
         - **Account_Code**, **Account_Name**: Account identifiers and names.
+        - **Account_Name**: The name associated with the account, typically representing the entity or individual that holds the account.
         - **Account_Details**: Additional details about the account.
         - **Analysis_Code**, **Analysis_Name**: Categorization codes and their descriptions.
         - **Sub_account_Code**, **Sub_Account_Name**: Sub-account codes and names.
