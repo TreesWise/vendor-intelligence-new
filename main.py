@@ -198,49 +198,105 @@ async def handle_query(userinput: ModelInput, db: SQLDatabase = Depends(get_db_c
         - **VENDORAPPROVALSTATUS**: Approval status of the vendor.
         - **VENDOR_REMARKS**: Vendor-provided remarks.
         - **REMARKS_TO_VENDOR**: Notes addressed to the vendor.
+        - **Primary_Manager_id**: The ID of the primary manager responsible for overseeing the vessel or equipment operations.
         
         #### **Purchase Order-Related Data**:
         - **PoNumber**: Unique identifier for the purchase order.
         - **pocategory**: Category of the purchase order.
         - **pocategory_id**: Unique identifier for the purchase order category.
         - **poitemcount**: Total number of items in the purchase order.
-        - **BaseCurrency**, **BaseAmount**: Currency and total amount details.
+        - **BaseCurrency**: The primary currency used in the purchase order or financial transaction, defining the standard for pricing and value.
+        - **BaseAmount**: The total amount in the base currency for the purchase order, excluding any adjustments, taxes, or fees.
         - **POSENTDATE**: Date when the purchase order was entered.
-        - **ApprovedDate**, **APPROVAL_FLAG**: Approval date and status of the purchase order.
-        - **po_amount_usd**, **PO_USD_VALUE**: USD values for the purchase order.
+        - **ApprovedDate**:The date on which the purchase order was approved, marking the official authorization of the order.
+        - **APPROVAL_FLAG**: Approval date and status of the purchase order.
+        - **po_amount_usd**: The amount of the purchase order in USD, often used for financial reconciliation.
+        - **PO_USD_VALUE**: USD values for the purchase order.
         - **Po_ApprovedDate**: Approval date of the purchase order.
         - **Po_Title**: Title or description of the purchase order.
+        - **ApprovedDate**: The date on which the purchase order was approved, marking the official authorization of the order.
         
         #### **Item and Equipment-Related Data**:
-        - **ITEM_ID**, **ITEM_DESCRIPTION**: Unique identifier and description of the item.
-        - **ITEM_CATEGORY**, **ITEM_CATEGORY_id**: Category and classification of the item.
-        - **ITEM_SECTION**, **ITEM_CODE**: Subgroup and unique code for the item.
-        - **UNIT_PRICE**, **UNIT_PRICE_USD**: Price per unit (local and USD).
-        - **QUANTITY**, **Received_Qty**, **ReceivedQuantity**: Quantity details.
+        - **ITEM_ID**: A unique identifier for the item in the system, used to track the specific item in inventory or procurement.
+        - **ITEM_DESCRIPTION**: Unique identifier and description of the item.
+        - **ITEM_CATEGORY**: The category or classification of the item, often used for grouping items into different types or segments.
+        - **ITEM_CATEGORY_id**: Category and classification of the item.
+        - **ITEM_SECTION**: A specific section or subgroup within the item category, used for further classification and reporting.
+        - **ITEM_CODE**: Subgroup and unique code for the item.
+        - **UNIT_PRICE**: The price per unit of the item, used for calculating costs, pricing, and invoicing.
+        - **UNIT_PRICE_USD**: Price per unit (local and USD).
+        - **QUANTITY**: The number of items or units in the purchase order or transaction.
+        - **Received_Qty**: The quantity of items received, used for inventory tracking and logistics.
+        - **ReceivedQuantity**: The quantity of the items that have been received against the purchase order, often used in inventory and shipment tracking.
         - **Packing_UOM**: Unit of measurement for packing.
-        - **MD_REQUIRED**, **SDoC_REQUIRED**: Flags for required documentation.
+        - **MD_REQUIRED**: Indicates whether a Material Data (MD) is required for the item.
+        - **SDoC_REQUIRED**: Flags for required documentation.
         - **Maker**: Manufacturer of the item or equipment.
-        - **DrawingNo**, **EQUIPMENT_TYPE**: Equipment details.
+        - **DrawingNo**: The number associated with the technical drawing or blueprint of the item or equipment, used for reference in design or manufacturing.
+        - **EQUIPMENT_TYPE**: The type or classification of the equipment, used for grouping or categorizing similar types of equipment.
         
         #### **Vessel-Related Data**:
-        - **SMC**: ship management centres.
         - **VesselName**: Name of the vessel.
-        - **IMONumber**: International Maritime Organization (IMO) number.
-        - **Vessel_Objectid**, **Vessel_Id1**: Unique identifiers for the vessel.
-        - **GRNNO_VESSEL**: Goods Receipt Note (GRN) number for the vessel.
+        - **Vessel_Objectid**: Unique identifier for the vessel.
+        - **Vessel_Id1**: Alternate vessel identifier.
+        - **GRNNO_VESSEL**: Goods Receipt Note number for the vessel.
+        - **SchdDeliveryPort**: Scheduled delivery port for goods or equipment.
+        - **OwnerID**: Identifier for the vessel owner.
+        - **OWNERNAME**: Name of the owner.
+        - **ULTIMATE_OWNER_Name**: Name of the ultimate owner.
+        - **IMONumber**: The International Maritime Organization (IMO) number is a unique identifier assigned to ships for maritime safety and legal purposes.
         
         #### **Account-Related Data**:
         - **Account_Code**, **Account_Name**: Account identifiers and names.
         - **Account_Name**: The name associated with the account, typically representing the entity or individual that holds the account.
         - **Account_Details**: Additional details about the account.
-        - **Analysis_Code**, **Analysis_Name**: Categorization codes and their descriptions.
-        - **Sub_account_Code**, **Sub_Account_Name**: Sub-account codes and names.
+        - **Analysis_Code**: The code used for categorizing or analyzing transactions or items, typically used for reporting or analysis.
+        - **Analysis_Name**: The name associated with the analysis code, providing more context about the categorization or analysis purpose.
+        - **Sub_account_Code**: The unique code for a sub-account, which is a subdivision of a main account, allowing more detailed tracking of financial transactions.
+        - **Sub_Account_Name**: The name associated with the sub-account, describing its purpose or the entity it represents.
+        - **alt_Account_Code**: An alternative account code used for tracking or categorization purposes, often used for cross-referencing.
+        - **alt_Account_Name**: An alternative name for the account, typically used for different accounting systems or standards.
+        - **alt_Analysis_Code**: An alternative analysis code used to categorize or group transactions for reporting or analysis purposes.
+        - **alt_Analysis_Name**: An alternative name for the analysis code, providing a different reference to the categorization or analysis process.
+        - **alt_Sub_account_Code**: An alternative code for a sub-account, used in cases where different systems or standards require separate coding.
+        - **alt_Sub_Account_Name**: An alternative name for the sub-account, providing a reference for cross-system compatibility or reporting.
         
         #### **Additional Data**:
         - **GRNNO_AGENT_WAREHOUSE**: Goods Receipt Note (GRN) for the agent’s warehouse.
         - **SchdDeliveryPort**: Scheduled delivery port.
         - **Service_Description**: Description of services provided.
         - **DrawingNo**, **EQUIPMENT_TYPE**: Technical details about the equipment.
+
+         #### **Maker and Manufacturing Data**:
+        - **Maker_id**: Unique identifier for the manufacturer.
+        - **Maker**: Manufacturer name.
+        - **DrawingNo**, **DRAWING_NUMBER**: Reference for technical drawings or blueprints.
+
+        #### **Financial and Currency Data**:
+        - **BaseCurrency**: Primary currency for the purchase order.
+        - **BaseAmount**: Total amount in base currency.
+        - **PO_USD_VALUE**, **po_amount_usd**: Total value in USD.
+        - **UNIT_PRICE_USD**: Price per unit in USD.
+
+        #### **Approval and Compliance Data**:
+        - **APPROVAL_FLAG**: Indicates approval status (e.g., True/False).
+        - **ApprovedDate**, **Po_ApprovedDate**: Approval dates.
+        - **MD_REQUIRED**: Whether Material Data is required.
+        - **SDoC_REQUIRED**: Whether Supplier Declaration of Conformity is needed.
+
+        #### **Parent and Hierarchical Data**:
+        - **ParentCode**: Code for the parent item/category.
+        - **ParentName**: Name associated with the parent item/category.
+
+        #### **Inquiry and Receipt Data**:
+        - **ENQNOS**: Associated inquiry number.
+        - **GRNNO_AGENT_WAREHOUSE**: Goods Receipt Note for the agent's warehouse.
+        - **GRNNO_VESSEL**: Goods Receipt Note for the vessel.
+
+        #### **Service and Miscellaneous Data**:
+        - **SERVICE_DESCRIPTION**: Description of the service provided.
+        - **Title**: Title of the item or transaction.
+        - **VENDOR_REMARKS**, **REMARKS_TO_VENDOR**: Additional remarks.
 
         """
 
