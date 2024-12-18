@@ -309,8 +309,8 @@ async def handle_query(userinput: ModelInput, db: SQLDatabase = Depends(get_db_c
            - Use **Markdown** tables with proper column headers and alignments.
            - Provide **concise summaries** when large datasets are returned.
 
-        6. For handling big result data
-           - The result is too large to display. Please refine your query or use filters to reduce the result size.
+        6. For handling big result data:
+           - The result is too large to display. Please refine your query or use filters to reduce the result size to show the `top ten` results only.
 
         """
         
