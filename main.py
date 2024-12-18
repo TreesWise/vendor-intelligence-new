@@ -257,12 +257,14 @@ async def handle_query(userinput: ModelInput, db: SQLDatabase = Depends(get_db_c
         - **Vessel_Objectid**:A unique identifier for the vessel, often used in databases to associate records to a specific vessel.
         - **Vessel_Id1**: An additional or alternate identifier for the vessel, possibly used for legacy systems or specific classifications.
         - **GRNNO_VESSEL**: The Goods Receipt Note (GRN) number related to the vessel, indicating the goods received on board the vessel.
-        - **SchdDeliveryPort**: The scheduled delivery port for the goods or equipment, marking the intended arrival location for the shipment.
         - **OwnerID**: The identifier for the owner of the vessel or equipment, used for tracking ownership.
         - **OWNERNAME**: The name of the owner of the item, vessel, or equipment.
         - **ULTIMATE_OWNER_Name**: The name of the ultimate owner of the item or equipment, representing the highest level of ownership.
         - **IMONumber**: The International Maritime Organization (IMO) number is a unique identifier assigned to ships for maritime safety and legal purposes.
         - **SMC**: The SMC (ship management centres) are specialized facilities or organizations responsible for overseeing the efficient and effective operation of a fleet of ships.
+
+        #### **Port-Related Data**:
+        - **SchdDeliveryPort**: (Scheduled Delivery Port) refers to the designated port or location where the goods or equipment are planned to be delivered as per the logistics schedule. This column indicates the final intended destination for the shipment, serving as a critical data point in supply chain management and transportation planning.It provides clarity on where the shipment is expected to arrive, ensuring alignment between the sender, carrier, and receiver. This information is vital for operational efficiency, resource allocation at the port, customs clearance, and tracking the shipment’s progress against the planned delivery route.
         
         #### **Account-Related Data**:
         - **Account_Code**: The unique code assigned to the account for the purpose of financial tracking or reporting.
