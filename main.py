@@ -186,6 +186,17 @@ async def handle_query(userinput: ModelInput, db: SQLDatabase = Depends(get_db_c
         - **UnitPrice**: The price per unit of the item, used for cost calculations and invoicing.
         - **ItemDescription**: A detailed description of the item, providing information about its specifications, use cases, or features.
         - **ReceivedQuantity**: The quantity of the items that have been received against the purchase order, often used in inventory and shipment tracking.
+        - **VendorAddress**: Extract the full address of the vendor, including street, building number, and any other address details. Ensure the address is complete.
+        - **VendorWebsite**: Identify and extract the official website URL of the vendor. The URL should be valid and correspond to the vendor's primary website.
+        - **VendorFax**: Extract the fax number associated with the vendor, if available. If not explicitly mentioned, leave this field blank.
+        - **VendorCity**: Extract the city name where the vendor is located. Ensure it is specific and consistent with the address details.
+        - **VendorState**: Extract the state or province associated with the vendor's address. This should match the city and ZIP code details.
+        - **VendorZipCode**: Extract the postal or ZIP code from the vendor's address. Ensure the code is complete and valid.
+        - **Vendor_IsSchulteCompany**: Determine if the vendor is affiliated with Schulte companies. Extract this information as a Boolean indicator ("Yes"/"No") or numeric equivalent (1/0).
+        - **Vendor_Registration_Number**: Extract the vendor's unique registration or identification number as assigned by a regulatory or legal authority.
+        - **Vendor_Registered_City**: Extract the city where the vendor is officially registered as a business entity. This may differ from the operational city.
+        - **Vendor_Registered_Country**: Extract the country where the vendor is officially registered. Ensure it matches any associated registration details.
+
         """
  
         Metadata_Groupings= """
@@ -200,6 +211,17 @@ async def handle_query(userinput: ModelInput, db: SQLDatabase = Depends(get_db_c
         - **VENDOR_REMARKS**: Any additional remarks or comments from the vendor, typically related to terms, conditions, or special considerations.
         - **REMARKS_TO_VENDOR**: Notes or remarks addressed to the vendor, providing additional instructions or requests.
         - **Primary_Manager_id**: The ID of the primary manager responsible for overseeing the vessel or equipment operations.
+        - **VendorAddress**: Extract the full address of the vendor, including street, building number, and any other address details. Ensure the address is complete.
+        - **VendorWebsite**: Identify and extract the official website URL of the vendor. The URL should be valid and correspond to the vendor's primary website.
+        - **VendorFax**: Extract the fax number associated with the vendor, if available. If not explicitly mentioned, leave this field blank.
+        - **VendorCity**: Extract the city name where the vendor is located. Ensure it is specific and consistent with the address details.
+        - **VendorState**: Extract the state or province associated with the vendor's address. This should match the city and ZIP code details.
+        - **VendorZipCode**: Extract the postal or ZIP code from the vendor's address. Ensure the code is complete and valid.
+        - **Vendor_IsSchulteCompany**: Determine if the vendor is affiliated with Schulte companies. Extract this information as a Boolean indicator ("Yes"/"No") or numeric equivalent (1/0).
+        - **Vendor_Registration_Number**: Extract the vendor's unique registration or identification number as assigned by a regulatory or legal authority.
+        - **Vendor_Registered_City**: Extract the city where the vendor is officially registered as a business entity. This may differ from the operational city.
+        - **Vendor_Registered_Country**: Extract the country where the vendor is officially registered. Ensure it matches any associated registration details.
+
         
         #### **Purchase Order-Related Data**:
         - **PoNumber**: The unique identifier for the purchase order, used to track and reference the order in the procurement system.
