@@ -176,8 +176,8 @@ async def handle_query(userinput: ModelInput, db: SQLDatabase = Depends(get_db_c
         - **ITEM_SECTION**: A specific section or subgroup within the item category, used for further classification and reporting.
         - **ITEM_CODE**: A unique code assigned to the item, used for identifying and tracking it in the system.
         - **UOM**: The unit of measurement for the item, such as kilogram, meter, etc.
-        - **PO_USD_VALUE**: The total value of the purchase order in USD, used for financial tracking and reporting.
-        - **po_amount_usd**: The amount of the purchase order in USD, often used for financial reconciliation.
+        - **PO_USD_VALUE**: The value of each purchase orders in USD, used for financial tracking and reporting.
+        #- **po_amount_usd**: The amount of the purchase order in USD, often used for financial reconciliation.
         - **MD_REQUIRED**: Indicates whether a Material Data (MD) is required for the item.
         - **SDoC_REQUIRED**: Indicates whether a Supplier Declaration of Conformity (SDoC) is required for the item.
         - **UNIT_PRICE_USD**: The price per unit of the item in USD, used for international pricing or currency conversions.
@@ -238,8 +238,8 @@ async def handle_query(userinput: ModelInput, db: SQLDatabase = Depends(get_db_c
         - **POSENTDATE**: The date when the purchase order was entered into the system, indicating the creation or registration date.
         - **ApprovedDate**:The date on which the purchase order was approved, marking the official authorization of the order.
         - **APPROVAL_FLAG**: A flag indicating whether the purchase order has been approved. Typically a boolean value (e.g., True or False).
-        - **po_amount_usd**: The amount of the purchase order in USD, often used for financial reconciliation.
-        - **PO_USD_VALUE**: The total value of the purchase order in USD, used for financial tracking and reporting.
+        #- **po_amount_usd**: The amount of the purchase order in USD, often used for financial reconciliation.
+        - **PO_USD_VALUE**: The value of each purchase orders in USD, used for financial tracking and reporting.
         - **Po_ApprovedDate**: The date when the purchase order was approved, used for tracking approval timelines.
         - **Po_Title**: The title or name associated with the purchase order, often used for categorization or easy reference.
         
