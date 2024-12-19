@@ -69,12 +69,17 @@ async def handle_query(userinput: ModelInput, db: SQLDatabase = Depends(get_db_c
         
         ### Query Normalization Guidelines:
         - **Input Transformation**: 
-          1. Convert all input text to **lowercase** for case-insensitive handling.
-          2. Replace punctuation characters (e.g., `-`, `_`, `,`, `.`) with **spaces** for better uniformity.
-          3. Remove leading and trailing whitespaces; collapse multiple spaces into a single space.
+        1.Convert all input text to lowercase for case-insensitive handling.
+        2.Replace punctuation characters (e.g., -, _, ,, .) with spaces for better uniformity.
+        3.Remove leading and trailing whitespaces; collapse multiple spaces into a single space.
         - **String Functions**:
-          - Use SQL string functions like `LOWER()`, `TRIM()`, `REPLACE()`, and fuzzy matching (`LIKE`, `LEVENSHTEIN()`, `SOUNDEX`) to account for minor spelling errors or variations.
-        
+        1.Use SQL string functions like `LOWER()`, `TRIM()`, `REPLACE()`, and fuzzy matching (`LIKE`, `LEVENSHTEIN()`, `SOUNDEX`) to account for minor spelling errors or variations.
+        - **Case Mismatch Handling**:
+        1.If the data in the database is stored in a specific case (e.g., uppercase), ensure that both the input and the database column are transformed to the same case during processing.
+        - **For consistent matching**: 
+        1.Normalize input to match the stored case (e.g., UPPER() for uppercase or LOWER() for lowercase).
+        2.Apply the same transformation on both sides of the comparison.
+        3.Use case-insensitive comparisons (e.g., ILIKE for PostgreSQL, collations in MySQL).
         ### SQL Query Construction:
         1. Ensure the query adheres to the **{dialect} dialect** syntax.
         2. Use **specific columns** in the SELECT clause for precision; avoid `SELECT *`.
