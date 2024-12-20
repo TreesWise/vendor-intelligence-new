@@ -72,7 +72,18 @@ def clean_response(response: str, question_type: str = "general") -> str:
 
 # The main query handler function
 @app.post("/query/")
-async def handle_query(userinput: ModelInput, db: SQLDatabase = Depends(get_db_connection)) -> Dict:
+async def handle_query(userinput: ModelInput, db: SQLDatabase = Depends(get_db_connection), question_type: str = "general") -> Dict:
+       """
+    Handles user queries and returns cleaned responses.
+
+    Args:
+        userinput (str): The user's query.
+        db: Database connection dependency.
+        question_type (str): The type of question ("general", "top-n", etc.).
+
+    Returns:
+        Dict: The cleaned response.
+    """
     try:
         # Initialize OpenAI LLM
         llm = ChatOpenAI(
