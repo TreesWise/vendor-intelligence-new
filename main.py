@@ -61,7 +61,7 @@ async def handle_query(userinput: ModelInput, db: SQLDatabase = Depends(get_db_c
         top_k = 10
 
         # Construct the prompt with the provided user input
-         column_metadata = """
+        column_metadata = """
         - **SMC**: The SMC (ship management centres) are specialized facilities or organizations responsible for overseeing the efficient and effective operation of a fleet of ships.
         - **Account_Code**: The unique code assigned to the account for the purpose of financial tracking or reporting.
         - **Account_Name**: The name associated with the account, typically representing the entity or individual that holds the account.
