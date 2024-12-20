@@ -39,51 +39,12 @@ scheduler.add_job(keep_connection_alive, 'interval', seconds=10)
 def get_db_connection():
     db = SingletonSQLDatabase.get_instance()
     return db
-#response cleaning
-def clean_response(response: str, question_type: str = "general") -> str:
-    """
-    Cleans the response based on the question type.
 
-    Args:
-        response (str): The raw response from the agent.
-        question_type (str): The type of question ("general", "top-n", etc.).
-
-    Returns:
-        str: The cleaned and formatted response.
-    """
-    # Remove unwanted newlines and extra spaces
-    response = re.sub(r"\s*\n\s*", " ", response).strip()
-    response = re.sub(r"\s{2,}", " ", response)  # Replace multiple spaces with one
-    
-    if question_type == "top-n":
-        # Format as a table
-        lines = response.split("\n")
-        headers = lines[0].split("|")
-        rows = [line.split("|") for line in lines[1:] if line.strip()]
-        
-        # Create a clean table format
-        table = " | ".join(headers) + "\n" + "---|---" * len(headers) + "\n"
-        for row in rows:
-            table += " | ".join(cell.strip() for cell in row) + "\n"
-        return table
-    
-    # For general questions, return the cleaned response
-    return response
 
 # The main query handler function
 @app.post("/query/")
-async def handle_query(userinput: ModelInput, db: SQLDatabase = Depends(get_db_connection), question_type: str = "general") -> Dict:
-       """
-    Handles user queries and returns cleaned responses.
-
-    Args:
-        userinput (str): The user's query.
-        db: Database connection dependency.
-        question_type (str): The type of question ("general", "top-n", etc.).
-
-    Returns:
-        Dict: The cleaned response.
-    """
+async def handle_query(userinput: ModelInput, db: SQLDatabase = Depends(get_db_connection)) -> Dict:
+    
     try:
         # Initialize OpenAI LLM
         llm = ChatOpenAI(
@@ -400,8 +361,7 @@ async def handle_query(userinput: ModelInput, db: SQLDatabase = Depends(get_db_c
 
         # Execute the query
         response = agent_executor.invoke(f"Now answer this query: {userinput}")["output"]
-        cleaned_response = clean_response(response, question_type)
-        return {"response": cleaned_response}
+        return {"response": response}
     except Exception as e:
         logging.error("Error handling query:", exc_info=True)
         raise HTTPException(status_code=500, detail="An error occurred while processing the request.")
