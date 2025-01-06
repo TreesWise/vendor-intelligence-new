@@ -56,9 +56,10 @@ async def handle_query(userinput: ModelInput, db: SQLDatabase = Depends(get_db_c
         )
 
         # Initialize the SQLDatabaseToolkit with LLM and the database
-        toolkit = SQLDatabaseToolkit(llm=llm, db=db)
-        dialect = toolkit.dialect
         top_k = 30
+        toolkit = SQLDatabaseToolkit(llm=llm, db=db,top_k=top_k)
+        dialect = toolkit.dialect
+        
 
         # Construct the prompt with the provided user input
         column_metadata = """
