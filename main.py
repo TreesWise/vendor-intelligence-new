@@ -59,7 +59,7 @@ async def handle_query(userinput: ModelInput, db: SQLDatabase = Depends(get_db_c
         
         toolkit = SQLDatabaseToolkit(llm=llm, db=db)
         dialect = toolkit.dialect
-        top_k = 10
+        top_k = 30
 
         # Construct the prompt with the provided user input
         column_metadata = """
