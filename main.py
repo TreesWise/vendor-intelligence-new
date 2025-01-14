@@ -16,29 +16,58 @@ from apscheduler.schedulers.background import BackgroundScheduler
 # OpenAI API Key
 openai_api_key = os.getenv("OPENAI_API_KEY")
 
+
 # Initialize FastAPI application
 app = FastAPI()
 
-# Function to keep the database connection alive
-def keep_connection_alive():
-    try:
-        db = SingletonSQLDatabase.get_instance()  # Get the singleton database instance
-        db.run("SELECT 1")  # Execute a simple query to keep the connection alive
-        logging.info("Database connection kept alive.")
-    except Exception as e:
-        logging.error("Error in keep_connection_alive:", exc_info=True)
+# Function to start the cluster at 7 AM
+def start_cluster():
+    db = SingletonSQLDatabase.get_instance()
+    db.start_cluster()
 
+# Function to stop the cluster at 7 PM
+def stop_cluster():
+    db = SingletonSQLDatabase.get_instance()
+    db.stop_cluster()
 
-# Initialize APScheduler
-scheduler = BackgroundScheduler()
+# Function to handle idle timeout (30 minutes)
+idle_timer = None
 
-# Schedule the keep_connection_alive task to run every 10 seconds
-scheduler.add_job(keep_connection_alive, 'interval', seconds=999999999)
+def reset_idle_timer():
+    global idle_timer
+
+    def idle_shutdown():
+        db = SingletonSQLDatabase.get_instance()
+        if db.active:
+            db.stop_cluster()
+            logging.info("Cluster set to idle due to 30 minutes of inactivity.")
+
+    if idle_timer:
+        idle_timer.cancel()
+    idle_timer = threading.Timer(1800.0, idle_shutdown)  # 30 minutes
+    idle_timer.start()
+
+# Simulate a request handler
+def handle_request():
+    db = SingletonSQLDatabase.get_instance()
+    if not db.active:
+        db.start_cluster()
+    db.run("Processing request...")
+    reset_idle_timer()
 
 # Function to get the database connection via dependency injection
 def get_db_connection():
     db = SingletonSQLDatabase.get_instance()
     return db
+
+# Initialize APScheduler
+scheduler = BackgroundScheduler()
+
+# Schedule start at 7 AM
+scheduler.add_job(start_cluster, 'cron', hour=7, minute=0)
+
+# Schedule shutdown at 7 PM
+scheduler.add_job(stop_cluster, 'cron', hour=19, minute=0)
 
 
 # The main query handler function
