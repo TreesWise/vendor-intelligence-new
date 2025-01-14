@@ -20,61 +20,25 @@ openai_api_key = os.getenv("OPENAI_API_KEY")
 # Initialize FastAPI application
 app = FastAPI()
 
-# Configure logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+# Function to keep the database connection alive
+def keep_connection_alive():
+    try:
+        db = SingletonSQLDatabase.get_instance()  # Get the singleton database instance
+        db.run("SELECT 1")  # Execute a simple query to keep the connection alive
+        logging.info("Database connection kept alive.")
+    except Exception as e:
+        logging.error("Error in keep_connection_alive:", exc_info=True)
 
-# Function to start the cluster at 7 AM
-def start_cluster():
-    db = SingletonSQLDatabase.get_instance()
-    db.start_cluster()
-    logging.info("Cluster started at 7 AM.")
+# Initialize APScheduler
+scheduler = BackgroundScheduler()
 
-# Function to stop the cluster at 7 PM
-def stop_cluster():
-    db = SingletonSQLDatabase.get_instance()
-    db.stop_cluster()
-    logging.info("Cluster stopped at 7 PM.")
-
-# Idle timeout configuration (set to 15 minutes)
-idle_timer = None
-idle_lock = threading.Lock()
-
-def reset_idle_timer():
-    global idle_timer
-
-    def idle_shutdown():
-        db = SingletonSQLDatabase.get_instance()
-        if db.active:
-            db.stop_cluster()
-            logging.info("Cluster set to idle due to 15 minutes of inactivity.")
-
-    with idle_lock:
-        if idle_timer:
-            idle_timer.cancel()
-        idle_timer = threading.Timer(900.0, idle_shutdown)  # 15 minutes
-        idle_timer.start()
-
-# Simulate a request handler
-def handle_request():
-    db = SingletonSQLDatabase.get_instance()
-    if not db.active:
-        db.start_cluster()
-        logging.info("Cluster started due to incoming request.")
-    db.run("Processing request...")
-    reset_idle_timer()
+# Schedule the keep_connection_alive task to run every 10 seconds
+scheduler.add_job(keep_connection_alive, 'interval', seconds=10)
 
 # Function to get the database connection via dependency injection
 def get_db_connection():
     db = SingletonSQLDatabase.get_instance()
     return db
-
-# Initialize and start APScheduler
-scheduler = BackgroundScheduler()
-scheduler.add_job(start_cluster, 'cron', hour=7, minute=0)
-scheduler.add_job(stop_cluster, 'cron', hour=19, minute=0)
-scheduler.start()
-
-logging.info("Scheduler started.")
 
 # The main query handler function
 @app.post("/query/")
