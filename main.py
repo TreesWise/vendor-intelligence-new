@@ -40,11 +40,11 @@ def reset_idle_timer():
         db = SingletonSQLDatabase.get_instance()
         if db.active:
             db.stop_cluster()
-            logging.info("Cluster set to idle due to 30 minutes of inactivity.")
+            logging.info("Cluster set to idle due to 5 minutes of inactivity.")
 
     if idle_timer:
         idle_timer.cancel()
-    idle_timer = threading.Timer(1800.0, idle_shutdown)  # 30 minutes
+    idle_timer = threading.Timer(300.0, idle_shutdown)  # 5 minutes
     idle_timer.start()
 
 # Simulate a request handler
@@ -68,7 +68,6 @@ scheduler.add_job(start_cluster, 'cron', hour=7, minute=0)
 
 # Schedule shutdown at 7 PM
 scheduler.add_job(stop_cluster, 'cron', hour=19, minute=0)
-
 
 # The main query handler function
 @app.post("/query/")
