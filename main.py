@@ -12,7 +12,7 @@ from database import SingletonSQLDatabase  # Import the Singleton connection ins
 from custom_datatypes import ModelInput
 from langchain_community.agent_toolkits.sql.base import create_sql_agent
 from apscheduler.schedulers.background import BackgroundScheduler
-
+import threading
 # OpenAI API Key
 openai_api_key = os.getenv("OPENAI_API_KEY")
 
@@ -20,18 +20,24 @@ openai_api_key = os.getenv("OPENAI_API_KEY")
 # Initialize FastAPI application
 app = FastAPI()
 
+# Configure logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+
 # Function to start the cluster at 7 AM
 def start_cluster():
     db = SingletonSQLDatabase.get_instance()
     db.start_cluster()
+    logging.info("Cluster started at 7 AM.")
 
 # Function to stop the cluster at 7 PM
 def stop_cluster():
     db = SingletonSQLDatabase.get_instance()
     db.stop_cluster()
+    logging.info("Cluster stopped at 7 PM.")
 
-# Function to handle idle timeout (30 minutes)
+# Idle timeout configuration (set to 15 minutes)
 idle_timer = None
+idle_lock = threading.Lock()
 
 def reset_idle_timer():
     global idle_timer
@@ -40,18 +46,20 @@ def reset_idle_timer():
         db = SingletonSQLDatabase.get_instance()
         if db.active:
             db.stop_cluster()
-            logging.info("Cluster set to idle due to 5 minutes of inactivity.")
+            logging.info("Cluster set to idle due to 15 minutes of inactivity.")
 
-    if idle_timer:
-        idle_timer.cancel()
-    idle_timer = threading.Timer(300.0, idle_shutdown)  # 5 minutes
-    idle_timer.start()
+    with idle_lock:
+        if idle_timer:
+            idle_timer.cancel()
+        idle_timer = threading.Timer(900.0, idle_shutdown)  # 15 minutes
+        idle_timer.start()
 
 # Simulate a request handler
 def handle_request():
     db = SingletonSQLDatabase.get_instance()
     if not db.active:
         db.start_cluster()
+        logging.info("Cluster started due to incoming request.")
     db.run("Processing request...")
     reset_idle_timer()
 
@@ -60,14 +68,13 @@ def get_db_connection():
     db = SingletonSQLDatabase.get_instance()
     return db
 
-# Initialize APScheduler
+# Initialize and start APScheduler
 scheduler = BackgroundScheduler()
-
-# Schedule start at 7 AM
 scheduler.add_job(start_cluster, 'cron', hour=7, minute=0)
-
-# Schedule shutdown at 7 PM
 scheduler.add_job(stop_cluster, 'cron', hour=19, minute=0)
+scheduler.start()
+
+logging.info("Scheduler started.")
 
 # The main query handler function
 @app.post("/query/")
