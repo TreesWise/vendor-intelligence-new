@@ -16,6 +16,8 @@ import threading
 # OpenAI API Key
 openai_api_key = os.getenv("OPENAI_API_KEY")
 
+# Configure logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 # Initialize FastAPI application
 app = FastAPI()
