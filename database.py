@@ -8,7 +8,7 @@ from apscheduler.schedulers.background import BackgroundScheduler
 from pytz import timezone
 import datetime
 import signal
-
+import os
 
 # Fetch credentials from environment variables
 API_TOKEN = os.getenv("API_TOKEN")
