@@ -32,8 +32,8 @@ def keep_connection_alive():
 # Initialize APScheduler
 scheduler = BackgroundScheduler()
 
-# Schedule the keep_connection_alive task to run every 10 seconds
-scheduler.add_job(keep_connection_alive, 'interval', seconds=999999)
+#Scheduled to keep the connection alive every 25 minutes
+scheduler.add_job(keep_connection_alive, 'interval',  minutes=25)
 
 # Function to get the database connection via dependency injection
 def get_db_connection():
