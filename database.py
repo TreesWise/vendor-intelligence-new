@@ -110,9 +110,12 @@ scheduler = BackgroundScheduler(timezone=local_timezone)
 scheduler.add_job(start_databricks_warehouse, 'cron', hour=7, minute=0)
 logging.info("Scheduled Databricks SQL Warehouse to start at 7:00 AM")
 
-# Stop at 7:00 PM
-scheduler.add_job(stop_databricks_warehouse, 'cron', hour=19, minute=0)
-logging.info("Scheduled Databricks SQL Warehouse to stop at 7:00 PM")
+# # Stop at 7:00 PM
+# scheduler.add_job(stop_databricks_warehouse, 'cron', hour=19, minute=0)
+# logging.info("Scheduled Databricks SQL Warehouse to stop at 7:00 PM")
+# Stop at 3:10 PM
+scheduler.add_job(stop_databricks_warehouse, 'cron', hour=15, minute=10)
+logging.info("Scheduled Databricks SQL Warehouse to stop at 3:10 PM")
 
 def initialize_scheduler():
     try:
