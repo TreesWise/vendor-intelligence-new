@@ -13,6 +13,9 @@ from custom_datatypes import ModelInput
 from langchain_community.agent_toolkits.sql.base import create_sql_agent
 from apscheduler.schedulers.background import BackgroundScheduler
 import threading
+
+load_dotenv()
+
 # OpenAI API Key
 openai_api_key = os.getenv("OPENAI_API_KEY")
 
