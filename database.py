@@ -14,7 +14,7 @@ CATALOG = "hive_metastore"
 SCHEMA = "Common"
 
 
-logging.info(f"Using Databricks host: {host}")
+logging.info(f"Using Databricks host: {HOST}")
 
 class SingletonSQLDatabase:
     """Thread-safe Singleton for managing a shared SQLDatabase instance."""
@@ -36,9 +36,9 @@ class SingletonSQLDatabase:
             return SQLDatabase.from_databricks(
                 catalog=CATALOG,
                 schema=SCHEMA,
-                api_token=api_token,
-                host=host,
-                warehouse_id=warehouse_id,
+                api_token=API_TOKEN,
+                host=HOST,
+                warehouse_id=WAREHOUSE_ID,
             )
         except Exception as e:
             logging.error("Failed to initialize SQLDatabase:", exc_info=True)
