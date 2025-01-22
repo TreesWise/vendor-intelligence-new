@@ -1,4 +1,3 @@
-import os
 import re
 import logging
 from fastapi import FastAPI, HTTPException, Depends
@@ -13,11 +12,14 @@ from custom_datatypes import ModelInput
 from langchain_community.agent_toolkits.sql.base import create_sql_agent
 from apscheduler.schedulers.background import BackgroundScheduler
 import threading
-
+from dotenv import load_dotenv
+import os
 load_dotenv()
-
 # OpenAI API Key
-openai_api_key = os.getenv("OPENAI_API_KEY")
+openai_api_key = os.getenv("OPEN_API_KEY")
+
+
+
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
