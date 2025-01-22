@@ -35,7 +35,11 @@ def keep_connection_alive():
 scheduler = BackgroundScheduler()
 
 #Scheduled to keep the connection alive every 25 minutes
-scheduler.add_job(keep_connection_alive, 'interval',  minutes=25)
+# scheduler.add_job(keep_connection_alive, 'interval',  minutes=25)
+
+# Schedule the keep_connection_alive task to run every 10 seconds
+scheduler.add_job(keep_connection_alive, 'interval', seconds=999999)
+
 
 # Function to get the database connection via dependency injection
 def get_db_connection():
