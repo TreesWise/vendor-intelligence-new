@@ -3,7 +3,7 @@ import threading
 from langchain_community.utilities.sql_database import SQLDatabase
 from dotenv import load_dotenv
 import os
-
+load_dotenv()
 # Fetch credentials from environment variables
 API_TOKEN = os.getenv("API_TOKEN")
 HOST = os.getenv("HOST")
