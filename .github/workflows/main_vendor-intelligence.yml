@@ -66,4 +66,4 @@ jobs:
         with:
           app-name: 'Vendor-Intelligence'
           slot-name: 'Production'
-          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_62D658972C11435D8803F2472E32F226 }}
+          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_4D40A11ED7064B88985CFD1D3E499AC9 }}
