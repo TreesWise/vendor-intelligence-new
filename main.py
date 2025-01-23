@@ -41,7 +41,7 @@ scheduler = BackgroundScheduler()
 
 
 # Schedule the keep_connection_alive task to run every 10 seconds
-scheduler.add_job(keep_connection_alive, 'interval', seconds=180)
+scheduler.add_job(keep_connection_alive, 'interval', seconds=10)
 
 
 # Function to get the database connection via dependency injection
