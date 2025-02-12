@@ -215,12 +215,7 @@ def fetch_top_vendors(
         
 @app.post("/query/")
 async def handle_query(userinput: ModelInput, db: SQLDatabase = Depends(get_db_connection)) -> Dict:
-    print("Passing to fetch_top_vendors:")
-    print("Item Names:", userinput.item_name)
-    print("Port Names:", userinput.port_name)
-    print("Item IDs:", userinput.item_id)
-    print("Port IDs:", userinput.port_id)
-    print("Question:", userinput.user_query)
+
 
     try:
         response_data = {}
