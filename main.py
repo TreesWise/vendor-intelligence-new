@@ -1,6 +1,6 @@
 import logging
 from fastapi import FastAPI, HTTPException, Depends
-from typing import Dict, Optional
+from typing import Dict, Optional, List
 from langchain_openai import ChatOpenAI
 from langchain_community.agent_toolkits.sql.toolkit import SQLDatabaseToolkit
 from langchain_community.utilities.sql_database import SQLDatabase
@@ -13,15 +13,11 @@ import os
 from langchain.prompts import ChatPromptTemplate, HumanMessagePromptTemplate, MessagesPlaceholder
 from langchain_core.messages import AIMessage, SystemMessage
 import ast
-from typing import List
-import logging
 from collections import defaultdict
+
 load_dotenv()
 # OpenAI API Key
 openai_api_key = os.getenv("OPEN_API_KEY")
-
-
-
 
 # Initialize FastAPI application
 app = FastAPI()
@@ -52,18 +48,11 @@ def fetch_top_vendors(
     port_ids: Optional[List[str]] = None
 ):
     try:
-        print("Item Names (Before Trim):", item_names)
-        print("Port Names (Before Trim):", port_names)
-
         # Trim spaces from user inputs
         if item_names:
             item_names = [name.strip() for name in item_names]
         if port_names:
             port_names = [port.strip() for port in port_names]
-
-        print("Item Names (After Trim):", item_names)
-        print("Port Names (After Trim):", port_names)
-
         # If IDs are provided, resolve them to names
         if item_ids:
             item_ids_escaped = [f"'{id}'" for id in item_ids]
@@ -73,9 +62,6 @@ def fetch_top_vendors(
                 WHERE ITEM_ID IN ({', '.join(item_ids_escaped)})
             """
             item_results = db.run(item_query)
-
-            print("Raw item results from DB:", item_results)
-
             if isinstance(item_results, str):
                 try:
                     item_results = ast.literal_eval(item_results)
@@ -98,8 +84,6 @@ def fetch_top_vendors(
                 WHERE SchdDeliveryPortID IN ({', '.join(port_ids_escaped)})
             """
             port_results = db.run(port_query)
-
-            print("Raw port results from DB:", port_results)
 
             if isinstance(port_results, str):
                 try:
@@ -125,8 +109,6 @@ def fetch_top_vendors(
         port_condition = f"LTRIM(RTRIM(SchdDeliveryPort)) IN ({', '.join(port_names_escaped)})"
 
         condition = f"{item_condition} AND {port_condition}"
-        print("SQL Condition:", condition)
-
         query = f"""
             SELECT LTRIM(RTRIM(SchdDeliveryPort)), LTRIM(RTRIM(ITEM_DESCRIPTION)), VendorName, VendorCode, COUNT(*) as OrderCount
             FROM Common.tbl_vw_ai_common_po_itemized_query
@@ -136,8 +118,6 @@ def fetch_top_vendors(
         """
 
         result = db.run(query)
-        print("Raw result from DB:", result)
-
         if isinstance(result, str):
             try:
                 result = ast.literal_eval(result)
@@ -182,32 +162,27 @@ def fetch_top_vendors(
             vendor_entry["TotalCount"] = sum(vendor_entry["ItemCounts"].values())
 
         final_result = []
+        # Modified block: Return top 2 vendors per port if they exist
         for port, vendors in port_vendor_data.items():
-            # Handle case where there are no vendors
             if not vendors:
                 continue
-
-            top_vendor = max(vendors.values(), key=lambda v: v["TotalCount"], default=None)
-            if not top_vendor:
-                continue  # Skip if no valid vendor exists
-
-            all_item_counts = {item: top_vendor["ItemCounts"].get(item, 0) for item in item_names}
-
-            item_descriptions = ", ".join(
-                [f"Total {item} ordered at {port}: {count}" for item, count in all_item_counts.items()]
-            )
-
-            final_result.append({
-                "Port": port,
-                "Item": ", ".join(item_names),
-                "VendorName": top_vendor["VendorName"],
-                "VendorID": top_vendor["VendorID"],
-                "totalOrderCount": top_vendor["TotalCount"],
-                "Description": item_descriptions
-            })
+            # Sort vendors by TotalCount in descending order
+            sorted_vendors = sorted(vendors.values(), key=lambda v: v["TotalCount"], reverse=True)
+            for vendor in sorted_vendors[:2]:
+                all_item_counts = {item: vendor["ItemCounts"].get(item, 0) for item in item_names}
+                item_descriptions = ", ".join(
+                    [f"Total {item} ordered at {port}: {count}" for item, count in all_item_counts.items()]
+                )
+                final_result.append({
+                    "Port": port,
+                    "Item": ", ".join(item_names),
+                    "VendorName": vendor["VendorName"],
+                    "VendorID": vendor["VendorID"],
+                    "totalOrderCount": vendor["TotalCount"],
+                    "Description": item_descriptions
+                })
 
         return final_result
-
 
     except Exception as e:
         logging.error("Error fetching top vendors", exc_info=True)
@@ -567,18 +542,6 @@ async def handle_query(userinput: ModelInput, db: SQLDatabase = Depends(get_db_c
             response_data["response"] = response
             return response_data
         return {"message": "Please provide both item names and port names for vendor analysis."}
-    
-        # # If vendor-related fields are provided, fetch top vendors
-        # elif userinput.item_id or userinput.port_id or userinput.item_name or userinput.port_name:
-        #     top_vendors = fetch_top_vendors(userinput.item_id, userinput.port_id, userinput.item_name, userinput.port_name, db)
-        #     if top_vendors:
-        #         return {"top_vendors": top_vendors}
-        #     else:
-        #         return {"message": "No vendors found for the specified item and port."}
-
-        # # If no valid query or vendor-related input is provided
-        # else:
-        #     return {"message": "Hello! How can I assist you today?"}  # Default chatbot greeting
     except Exception as e:
         logging.error("Error handling query:", exc_info=True)
         raise HTTPException(status_code=500, detail="An error occurred while processing the request.")
