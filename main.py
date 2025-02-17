@@ -193,7 +193,7 @@ async def handle_query(userinput: ModelInput, db: SQLDatabase = Depends(get_db_c
 
 
     try:
-        response_data = {}
+        response_data = {"response": {}, "top_vendors": []}
 
         # Check if item/port details are provided via names or IDs
         if (userinput.item_name and userinput.port_name) or (userinput.item_id and userinput.port_id):
