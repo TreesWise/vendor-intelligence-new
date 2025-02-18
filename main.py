@@ -39,6 +39,7 @@ scheduler.add_job(keep_connection_alive, 'interval', seconds=9999999)
 def get_db_connection():
     return SingletonSQLDatabase.get_instance()
 
+
 # Function to fetch top vendors based on item and port details
 def fetch_top_vendors(
     db, 
@@ -48,11 +49,18 @@ def fetch_top_vendors(
     port_ids: Optional[List[str]] = None
 ):
     try:
+        print("Item Names (Before Trim):", item_names)
+        print("Port Names (Before Trim):", port_names)
+
         # Trim spaces from user inputs
         if item_names:
             item_names = [name.strip() for name in item_names]
         if port_names:
             port_names = [port.strip() for port in port_names]
+
+        print("Item Names (After Trim):", item_names)
+        print("Port Names (After Trim):", port_names)
+
         # If IDs are provided, resolve them to names
         if item_ids:
             item_ids_escaped = [f"'{id}'" for id in item_ids]
@@ -62,6 +70,9 @@ def fetch_top_vendors(
                 WHERE ITEM_ID IN ({', '.join(item_ids_escaped)})
             """
             item_results = db.run(item_query)
+
+            print("Raw item results from DB:", item_results)
+
             if isinstance(item_results, str):
                 try:
                     item_results = ast.literal_eval(item_results)
@@ -85,6 +96,8 @@ def fetch_top_vendors(
             """
             port_results = db.run(port_query)
 
+            print("Raw port results from DB:", port_results)
+
             if isinstance(port_results, str):
                 try:
                     port_results = ast.literal_eval(port_results)
@@ -104,11 +117,20 @@ def fetch_top_vendors(
 
         item_names_escaped = [f"'{name}'" for name in item_names]
         port_names_escaped = [f"'{port}'" for port in port_names]
+        
+        item_names_escaped = [f"'{name.lower()}'" for name in item_names]
+        port_names_escaped = [f"'{port.lower()}'" for port in port_names]
 
-        item_condition = f"LTRIM(RTRIM(ITEM_DESCRIPTION)) IN ({', '.join(item_names_escaped)})"
-        port_condition = f"LTRIM(RTRIM(SchdDeliveryPort)) IN ({', '.join(port_names_escaped)})"
 
+        item_condition = f"LOWER(LTRIM(RTRIM(ITEM_DESCRIPTION))) IN ({', '.join(item_names_escaped)})"
+        port_condition = f"LOWER(LTRIM(RTRIM(SchdDeliveryPort))) IN ({', '.join(port_names_escaped)})"
+
+        
+
+        
         condition = f"{item_condition} AND {port_condition}"
+        print("SQL Condition:", condition)
+
         query = f"""
             SELECT LTRIM(RTRIM(SchdDeliveryPort)), LTRIM(RTRIM(ITEM_DESCRIPTION)), VendorName, VendorCode, COUNT(*) as OrderCount
             FROM Common.tbl_vw_ai_common_po_itemized_query
@@ -118,6 +140,8 @@ def fetch_top_vendors(
         """
 
         result = db.run(query)
+        print("Raw result from DB:", result)
+
         if isinstance(result, str):
             try:
                 result = ast.literal_eval(result)
@@ -204,6 +228,7 @@ async def handle_query(userinput: ModelInput, db: SQLDatabase = Depends(get_db_c
                 item_ids=userinput.item_id,
                 port_ids=userinput.port_id
             )
+          
 
             if top_vendors:
                 response_data["top_vendors"] = top_vendors
@@ -211,7 +236,7 @@ async def handle_query(userinput: ModelInput, db: SQLDatabase = Depends(get_db_c
             else:
                 return {"message": "No top vendors found for the specified criteria."}
    
-           
+            
         if userinput.user_query and userinput.user_query.strip():
             llm = ChatOpenAI(
                 model="gpt-4o",
@@ -437,7 +462,7 @@ async def handle_query(userinput: ModelInput, db: SQLDatabase = Depends(get_db_c
             """
 
             prefix = """
-            You are an advanced SQL database assistant specializing in answering user queries by interacting with the `tbl_vw_ai_common_po_itemized_query` table in the `Common` schema.
+            You are an advanced SQL database assistant specializing in answering user queries by interacting with the `Tbl_Vw_Dm_GDB_Items_UniqueID_vendor_integrated` table in the `Common` schema.
             ### Handling General Queries:
             - If the query is a general greeting (e.g., "Hi", "Hello", "How are you?"), respond with a polite acknowledgment:
                 - Example: "Hello! How can I assist you today?"
@@ -542,6 +567,18 @@ async def handle_query(userinput: ModelInput, db: SQLDatabase = Depends(get_db_c
             response_data["response"] = response
             return response_data
         return {"message": "Please provide both item names and port names for vendor analysis."}
+    
+        # # If vendor-related fields are provided, fetch top vendors
+        # elif userinput.item_id or userinput.port_id or userinput.item_name or userinput.port_name:
+        #     top_vendors = fetch_top_vendors(userinput.item_id, userinput.port_id, userinput.item_name, userinput.port_name, db)
+        #     if top_vendors:
+        #         return {"top_vendors": top_vendors}
+        #     else:
+        #         return {"message": "No vendors found for the specified item and port."}
+
+        # # If no valid query or vendor-related input is provided
+        # else:
+        #     return {"message": "Hello! How can I assist you today?"}  # Default chatbot greeting
     except Exception as e:
         logging.error("Error handling query:", exc_info=True)
         raise HTTPException(status_code=500, detail="An error occurred while processing the request.")
