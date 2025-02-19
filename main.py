@@ -49,18 +49,12 @@ def fetch_top_vendors(
     port_ids: Optional[List[str]] = None
 ):
     try:
-        print("Item Names (Before Trim):", item_names)
-        print("Port Names (Before Trim):", port_names)
-
+      
         # Trim spaces from user inputs
         if item_names:
             item_names = [name.strip() for name in item_names]
         if port_names:
             port_names = [port.strip() for port in port_names]
-
-        print("Item Names (After Trim):", item_names)
-        print("Port Names (After Trim):", port_names)
-
         # If IDs are provided, resolve them to names
         if item_ids:
             item_ids_escaped = [f"'{id}'" for id in item_ids]
@@ -70,23 +64,16 @@ def fetch_top_vendors(
                 WHERE ITEM_ID IN ({', '.join(item_ids_escaped)})
             """
             item_results = db.run(item_query)
-
-            print("Raw item results from DB:", item_results)
-
             if isinstance(item_results, str):
                 try:
                     item_results = ast.literal_eval(item_results)
                 except (SyntaxError, ValueError) as e:
-                    print("Error parsing item results:", e)
                     item_results = []
 
             if not isinstance(item_results, list) or not all(isinstance(row, tuple) and len(row) == 2 for row in item_results):
-                print("Unexpected format for item results:", item_results)
                 return []
-
             item_mapping = {row[0]: row[1].strip() for row in item_results}
             item_names = [item_mapping[id] for id in item_ids if id in item_mapping]
-
         if port_ids:
             port_ids_escaped = [f"'{id}'" for id in port_ids]
             port_query = f"""
@@ -95,42 +82,30 @@ def fetch_top_vendors(
                 WHERE SchdDeliveryPortID IN ({', '.join(port_ids_escaped)})
             """
             port_results = db.run(port_query)
-
-            print("Raw port results from DB:", port_results)
-
             if isinstance(port_results, str):
                 try:
                     port_results = ast.literal_eval(port_results)
                 except (SyntaxError, ValueError) as e:
-                    print("Error parsing port results:", e)
+                
                     port_results = []
-
             if not isinstance(port_results, list) or not all(isinstance(row, tuple) and len(row) == 2 for row in port_results):
-                print("Unexpected format for port results:", port_results)
+               
                 return []
-
             port_mapping = {row[0]: row[1].strip() for row in port_results}
             port_names = [port_mapping[id] for id in port_ids if id in port_mapping]
-
         if not item_names or not port_names:
             return []
-
+        item_names = [name.lower() for name in item_names]
+        port_names = [port.lower() for port in port_names]
+        # Escape values correctly for SQL
         item_names_escaped = [f"'{name}'" for name in item_names]
         port_names_escaped = [f"'{port}'" for port in port_names]
-        
-        item_names_escaped = [f"'{name.lower()}'" for name in item_names]
-        port_names_escaped = [f"'{port.lower()}'" for port in port_names]
-
-
+        # SQL condition
         item_condition = f"LOWER(LTRIM(RTRIM(ITEM_DESCRIPTION))) IN ({', '.join(item_names_escaped)})"
         port_condition = f"LOWER(LTRIM(RTRIM(SchdDeliveryPort))) IN ({', '.join(port_names_escaped)})"
-
-        
-
-        
+        item_condition = f"LOWER(LTRIM(RTRIM(ITEM_DESCRIPTION))) IN ({', '.join(item_names_escaped)})"
+        port_condition = f"LOWER(LTRIM(RTRIM(SchdDeliveryPort))) IN ({', '.join(port_names_escaped)})"
         condition = f"{item_condition} AND {port_condition}"
-        print("SQL Condition:", condition)
-
         query = f"""
             SELECT LTRIM(RTRIM(SchdDeliveryPort)), LTRIM(RTRIM(ITEM_DESCRIPTION)), VendorName, VendorCode, COUNT(*) as OrderCount
             FROM Common.tbl_vw_ai_common_po_itemized_query
@@ -138,23 +113,16 @@ def fetch_top_vendors(
             GROUP BY SchdDeliveryPort, ITEM_DESCRIPTION, VendorName, VendorCode
             ORDER BY SchdDeliveryPort, OrderCount DESC
         """
-
         result = db.run(query)
-        print("Raw result from DB:", result)
-
         if isinstance(result, str):
             try:
                 result = ast.literal_eval(result)
             except (SyntaxError, ValueError) as e:
-                print("Error parsing string result:", e)
                 result = []
-
         columns = ["SchdDeliveryPort", "ITEM_DESCRIPTION", "VendorName", "VendorCode", "OrderCount"]
         result_dicts = [dict(zip(columns, row)) for row in result]
-
         # Extract unique item names
         item_names = set(row["ITEM_DESCRIPTION"] for row in result_dicts)
-
         # Initialize before the loop
         port_vendor_data = defaultdict(lambda: defaultdict(lambda: {
             "Items": [], 
@@ -171,20 +139,15 @@ def fetch_top_vendors(
             vendor = row["VendorName"]
             vendor_id = row["VendorCode"]
             count = row["OrderCount"]
-
             vendor_entry = port_vendor_data[port][vendor]
-
             if vendor_entry["VendorID"] is None:
                 vendor_entry["VendorID"] = vendor_id
             if vendor_entry["VendorName"] is None:
                 vendor_entry["VendorName"] = vendor
-
             vendor_entry["Items"].append(item)
             vendor_entry["ItemCounts"][item] = vendor_entry["ItemCounts"].get(item, 0) + count
-            
             # Fix: Correct `TotalCount` calculation
             vendor_entry["TotalCount"] = sum(vendor_entry["ItemCounts"].values())
-
         final_result = []
         # Modified block: Return top 2 vendors per port if they exist
         for port, vendors in port_vendor_data.items():
@@ -205,13 +168,10 @@ def fetch_top_vendors(
                     "totalOrderCount": vendor["TotalCount"],
                     "Description": item_descriptions
                 })
-
         return final_result
-
     except Exception as e:
         logging.error("Error fetching top vendors", exc_info=True)
         return []
-        
 @app.post("/query/")
 async def handle_query(userinput: ModelInput, db: SQLDatabase = Depends(get_db_connection)) -> Dict:
 
@@ -228,13 +188,18 @@ async def handle_query(userinput: ModelInput, db: SQLDatabase = Depends(get_db_c
                 item_ids=userinput.item_id,
                 port_ids=userinput.port_id
             )
-          
-
+        
             if top_vendors:
                 response_data["top_vendors"] = top_vendors
-                return response_data
+                response_data["response"] = ""  # Keep response as an empty string when data exists
             else:
-                return {"message": "No top vendors found for the specified criteria."}
+                response_data = {
+                    "response": "No top vendors found for the specified criteria.",
+                    "top_vendors": []
+                }
+
+            return response_data
+
    
             
         if userinput.user_query and userinput.user_query.strip():
