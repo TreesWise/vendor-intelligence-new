@@ -60,7 +60,7 @@ def fetch_top_vendors(
             item_ids_escaped = [f"'{id}'" for id in item_ids]
             item_query = f"""
                 SELECT ITEM_ID, LTRIM(RTRIM(ITEM_DESCRIPTION)) 
-                FROM Common.tbl_vw_ai_common_po_itemized_query
+                FROM Common.Tbl_Vw_Dm_GDB_Items_UniqueID_vendor_integrated
                 WHERE ITEM_ID IN ({', '.join(item_ids_escaped)})
             """
             item_results = db.run(item_query)
@@ -78,7 +78,7 @@ def fetch_top_vendors(
             port_ids_escaped = [f"'{id}'" for id in port_ids]
             port_query = f"""
                 SELECT SchdDeliveryPortID, LTRIM(RTRIM(SchdDeliveryPort)) 
-                FROM Common.tbl_vw_ai_common_po_itemized_query
+                FROM Common.Tbl_Vw_Dm_GDB_Items_UniqueID_vendor_integrated
                 WHERE SchdDeliveryPortID IN ({', '.join(port_ids_escaped)})
             """
             port_results = db.run(port_query)
@@ -108,7 +108,7 @@ def fetch_top_vendors(
         condition = f"{item_condition} AND {port_condition}"
         query = f"""
             SELECT LTRIM(RTRIM(SchdDeliveryPort)), LTRIM(RTRIM(ITEM_DESCRIPTION)), VendorName, VendorCode, COUNT(*) as OrderCount
-            FROM Common.tbl_vw_ai_common_po_itemized_query
+            FROM Common.Tbl_Vw_Dm_GDB_Items_UniqueID_vendor_integrated
             WHERE {condition}
             GROUP BY SchdDeliveryPort, ITEM_DESCRIPTION, VendorName, VendorCode
             ORDER BY SchdDeliveryPort, OrderCount DESC
