@@ -114,6 +114,7 @@ def fetch_top_vendors(
             ORDER BY SchdDeliveryPort, OrderCount DESC
         """
         result = db.run(query)
+        print("resulttttttttttttttttttttttttttttttttttttt",result)
         if isinstance(result, str):
             try:
                 result = ast.literal_eval(result)
@@ -161,23 +162,25 @@ def fetch_top_vendors(
                     [f"Total {item} ordered at {port}: {count}" for item, count in all_item_counts.items()]
                 )
                 final_result.append({
-                    "Port": port,
-                    "Item": ", ".join(item_names),
-                    "VendorName": vendor["VendorName"],
-                    "VendorID": vendor["VendorID"],
-                    "totalOrderCount": vendor["TotalCount"],
-                    "Description": item_descriptions
-                })
+                "Port": port,
+                "Item": ", ".join(item_names),
+                "VendorName": vendor["VendorName"],
+                "vendorCode": vendor["VendorID"],  # Changed from "VendorID" to "vendorCode"
+                "totalOrderCount": vendor["TotalCount"],
+                "Description": item_descriptions
+            })
+
+                
         return final_result
+    
+    
     except Exception as e:
         logging.error("Error fetching top vendors", exc_info=True)
         return []
 @app.post("/query/")
 async def handle_query(userinput: ModelInput, db: SQLDatabase = Depends(get_db_connection)) -> Dict:
-
-
     try:
-        response_data = {"response": {}, "top_vendors": []}
+        response_data = {"response": {}, "top_vendors": [], "vendor_suggestions": ""}
 
         # Check if item/port details are provided via names or IDs
         if (userinput.item_name and userinput.port_name) or (userinput.item_id and userinput.port_id):
@@ -188,17 +191,21 @@ async def handle_query(userinput: ModelInput, db: SQLDatabase = Depends(get_db_c
                 item_ids=userinput.item_id,
                 port_ids=userinput.port_id
             )
-        
+
             if top_vendors:
-                response_data["top_vendors"] = top_vendors
-                response_data["response"] = ""  # Keep response as an empty string when data exists
+                response_data = {
+                    "response": "",  # Keep response as an empty string when data exists
+                    "vendor_suggestions": ", ".join([f"{vendor['VendorName']} ({vendor['vendorCode']})" for vendor in top_vendors]),
+                    "top_vendors": top_vendors
+                }
             else:
                 response_data = {
                     "response": "No top vendors found for the specified criteria.",
+                    "vendor_suggestions": "",
                     "top_vendors": []
                 }
-
             return response_data
+
 
    
             
