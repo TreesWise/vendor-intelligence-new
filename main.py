@@ -168,7 +168,7 @@ def fetch_top_vendors(
                 "vendorCode": vendor["VendorID"],  # Changed from "VendorID" to "vendorCode"
                 "totalOrderCount": vendor["TotalCount"],
                 "Description": item_descriptions
-            })
+            }}
 
                 
         return final_result
