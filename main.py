@@ -157,19 +157,16 @@ def fetch_top_vendors(
             # Sort vendors by TotalCount in descending order
             sorted_vendors = sorted(vendors.values(), key=lambda v: v["TotalCount"], reverse=True)
             for vendor in sorted_vendors[:2]:
-                all_item_counts = {item: vendor["ItemCounts"].get(item, 0) for item in item_names}
-                item_descriptions = ", ".join(
-                    [f"Total {item} ordered at {port}: {count}" for item, count in all_item_counts.items()]
-                )
-                final_result.append({
-                "Port": port,
-                "Item": ", ".join(item_names),
-                "VendorName": vendor["VendorName"],
-                "vendorCode": vendor["VendorID"],  # Changed from "VendorID" to "vendorCode"
-                "totalOrderCount": vendor["TotalCount"],
-                "Description": item_descriptions
-            })
-
+                for item in item_names:
+                    item_count = vendor["ItemCounts"].get(item, 0)
+                    final_result.append({
+                        "Port": port,
+                        "Item": item,
+                        "VendorName": vendor["VendorName"],
+                        "vendorCode": vendor["VendorID"],
+                        "totalOrderCount": item_count,
+                        "Description": f"Total {item} ordered at {port}: {item_count}"
+                    })
                 
         return final_result
     
