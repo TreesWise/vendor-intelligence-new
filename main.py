@@ -208,7 +208,6 @@ async def handle_query(userinput: ModelInput, db: SQLDatabase = Depends(get_db_c
 
 
    
-            
         if userinput.user_query and userinput.user_query.strip():
             llm = ChatOpenAI(
                 model="gpt-4o",
