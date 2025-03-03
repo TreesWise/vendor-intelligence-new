@@ -190,9 +190,10 @@ async def handle_query(userinput: ModelInput, db: SQLDatabase = Depends(get_db_c
             )
 
             if top_vendors:
+                unique_vendors = {f"{vendor['VendorName']} ({vendor['vendorCode']})" for vendor in top_vendors}
                 response_data = {
                     "response": "",  # Keep response as an empty string when data exists
-                    "vendor_suggestions": ", ".join([f"{vendor['VendorName']} ({vendor['vendorCode']})" for vendor in top_vendors]),
+                    "vendor_suggestions": ", ".join(unique_vendors),
                     "top_vendors": top_vendors
                 }
             else:
