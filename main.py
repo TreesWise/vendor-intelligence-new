@@ -218,7 +218,6 @@ async def handle_query(userinput: ModelInput, db: SQLDatabase = Depends(get_db_c
                 openai_api_key=openai_api_key
             )
     
-
             # SQL Agent Setup
             toolkit = SQLDatabaseToolkit(llm=llm, db=db)
             agent_executor = create_sql_agent(llm, db=db, agent_type="openai-tools", verbose=True)
