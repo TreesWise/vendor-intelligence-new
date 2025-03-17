@@ -41,6 +41,8 @@ def get_db_connection():
 
 
 # Function to fetch top vendors based on item and port details
+
+
 def fetch_top_vendors(
     db, 
     item_names: Optional[List[str]] = None, 
@@ -60,12 +62,10 @@ def fetch_top_vendors(
             item_ids_escaped = [f"'{str(item_id).strip()}'" for item_id in item_ids]
             item_condition = f"ITEM_ID IN ({', '.join(item_ids_escaped)})"
         elif item_names:
-            # Convert to lowercase for comparison
             item_names = [name.lower() for name in item_names]
             item_names_escaped = [f"'{name}'" for name in item_names]
             item_condition = f"LOWER(LTRIM(RTRIM(ITEM_DESCRIPTION))) IN ({', '.join(item_names_escaped)})"
         else:
-            # Neither item_ids nor item_names provided
             return []
 
         # Build the port condition: use IDs if provided, otherwise use names
@@ -77,72 +77,63 @@ def fetch_top_vendors(
             port_names_escaped = [f"'{port}'" for port in port_names]
             port_condition = f"LOWER(LTRIM(RTRIM(SchdDeliveryPort))) IN ({', '.join(port_names_escaped)})"
         else:
-            # Neither port_ids nor port_names provided
             return []
 
         # Combine conditions
         condition = f"{item_condition} AND {port_condition}"
-        print("Using condition:", condition)
 
         query = f"""
-            SELECT LTRIM(RTRIM(SchdDeliveryPort)), LTRIM(RTRIM(ITEM_DESCRIPTION)), VendorName, VendorCode, COUNT(*) as OrderCount
+            SELECT LTRIM(RTRIM(SchdDeliveryPort)), 
+                   LTRIM(RTRIM(ITEM_DESCRIPTION)), 
+                   VendorName, 
+                   VendorCode, 
+                   COUNT(*) as OrderCount
             FROM Common.Tbl_Vw_Dm_GDB_Items_UniqueID_vendor_integrated
             WHERE {condition}
             GROUP BY SchdDeliveryPort, ITEM_DESCRIPTION, VendorName, VendorCode
-            ORDER BY SchdDeliveryPort, OrderCount DESC
+            ORDER BY SchdDeliveryPort, ITEM_DESCRIPTION, OrderCount DESC
         """
+        
         result = db.run(query)
-        print("Query result:", result)
 
         if isinstance(result, str):
             try:
                 result = ast.literal_eval(result)
-            except (SyntaxError, ValueError) as e:
+            except (SyntaxError, ValueError):
                 result = []
 
         columns = ["SchdDeliveryPort", "ITEM_DESCRIPTION", "VendorName", "VendorCode", "OrderCount"]
         result_dicts = [dict(zip(columns, row)) for row in result]
-        
-        # Process the results to build final output (this part remains unchanged)
-        item_set = set(row["ITEM_DESCRIPTION"] for row in result_dicts)
-        port_vendor_data = defaultdict(lambda: defaultdict(lambda: {
-            "Items": [], 
-            "TotalCount": 0, 
-            "ItemCounts": {}, 
-            "VendorID": None, 
-            "VendorName": None
-        }))
+
+        # Dictionary to store top 2 vendors for each item at each port
+        port_item_vendors = defaultdict(lambda: defaultdict(list))
 
         for row in result_dicts:
             port = row["SchdDeliveryPort"]
             item = row["ITEM_DESCRIPTION"]
-            vendor = row["VendorName"]
-            vendor_id = row["VendorCode"]
-            count = row["OrderCount"]
-            vendor_entry = port_vendor_data[port][vendor]
-            if vendor_entry["VendorID"] is None:
-                vendor_entry["VendorID"] = vendor_id
-            if vendor_entry["VendorName"] is None:
-                vendor_entry["VendorName"] = vendor
-            vendor_entry["Items"].append(item)
-            vendor_entry["ItemCounts"][item] = vendor_entry["ItemCounts"].get(item, 0) + count
-            vendor_entry["TotalCount"] = sum(vendor_entry["ItemCounts"].values())
+            vendor_info = {
+                "VendorName": row["VendorName"],
+                "vendorCode": row["VendorCode"],
+                "totalOrderCount": row["OrderCount"],
+                "Description": f"Total {item} ordered at {port}: {row['OrderCount']}"
+            }
 
+            # Store top 2 vendors per item at each port
+            if len(port_item_vendors[port][item]) < 2:
+                port_item_vendors[port][item].append(vendor_info)
+
+        # Construct the final result
         final_result = []
-        for port, vendors in port_vendor_data.items():
-            if not vendors:
-                continue
-            sorted_vendors = sorted(vendors.values(), key=lambda v: v["TotalCount"], reverse=True)
-            for vendor in sorted_vendors[:2]:
-                for item in item_set:
-                    item_count = vendor["ItemCounts"].get(item, 0)
+        for port, items in port_item_vendors.items():
+            for item, vendors in items.items():
+                for vendor in vendors:
                     final_result.append({
                         "Port": port,
                         "Item": item,
                         "VendorName": vendor["VendorName"],
-                        "vendorCode": vendor["VendorID"],
-                        "totalOrderCount": item_count,
-                        "Description": f"Total {item} ordered at {port}: {item_count}"
+                        "vendorCode": vendor["vendorCode"],
+                        "totalOrderCount": vendor["totalOrderCount"],
+                        "Description": vendor["Description"]
                     })
 
         return final_result
