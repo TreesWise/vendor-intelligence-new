@@ -95,6 +95,7 @@ def fetch_top_vendors(
         """
         
         result = db.run(query)
+        logging.info(f"Raw query result: {result}")
 
         if isinstance(result, str):
             try:
@@ -503,17 +504,7 @@ async def handle_query(userinput: ModelInput, db: SQLDatabase = Depends(get_db_c
             return response_data
         return {"message": "Please provide both item names and port names for vendor analysis."}
     
-        # # If vendor-related fields are provided, fetch top vendors
-        # elif userinput.item_id or userinput.port_id or userinput.item_name or userinput.port_name:
-        #     top_vendors = fetch_top_vendors(userinput.item_id, userinput.port_id, userinput.item_name, userinput.port_name, db)
-        #     if top_vendors:
-        #         return {"top_vendors": top_vendors}
-        #     else:
-        #         return {"message": "No vendors found for the specified item and port."}
 
-        # # If no valid query or vendor-related input is provided
-        # else:
-        #     return {"message": "Hello! How can I assist you today?"}  # Default chatbot greeting
     except Exception as e:
         logging.error("Error handling query:", exc_info=True)
         raise HTTPException(status_code=500, detail="An error occurred while processing the request.")
