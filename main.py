@@ -496,7 +496,7 @@ async def handle_query(userinput: ModelInput, db: SQLDatabase = Depends(get_db_c
             ]
 
             prompt = ChatPromptTemplate.from_messages(messages)
-            agent_executor = create_sql_agent(llm, db=db, agent_type="openai-tools", verbose=True, prompt=prompt)
+            agent_executor = create_sql_agent(llm, db=db, agent_type="openai-tools", verbose=True, prompt=prompt,top_k=10)
 
             # Execute the query
             response = agent_executor.invoke(f"Now answer this query: {userinput}")["output"]
