@@ -24,25 +24,15 @@ class SingletonSQLDatabase:
 
     @classmethod
     def _create_instance(cls):
-        from sqlalchemy.engine import URL, create_engine
-
         try:
-            # Build Databricks SQLAlchemy URL
-            url = URL.create(
-                "databricks+connector",
-                host=HOST,
-                token=API_TOKEN,
+            return SQLDatabase.from_databricks(
                 catalog=CATALOG,
                 schema=SCHEMA,
+                api_token=API_TOKEN,
+                host=HOST,
                 warehouse_id=WAREHOUSE_ID,
+                engine_args={"pool_pre_ping": True}  # Ensures stale connections are detected
             )
-
-            # Enable pool_pre_ping to avoid stale connections
-            engine = create_engine(url, pool_pre_ping=True)
-
-            logging.info("Successfully created SQLDatabase instance.")
-            return SQLDatabase(engine=engine)
-
         except Exception as e:
             logging.error("Failed to create SQLDatabase instance.", exc_info=True)
             raise RuntimeError("Failed to initialize SQLDatabase") from e
