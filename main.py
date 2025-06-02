@@ -15,6 +15,10 @@ from langchain_core.messages import AIMessage, SystemMessage
 import ast
 from collections import defaultdict
 
+
+from langchain.chat_models import ChatOpenAI  # Or equivalent BaseLanguageModel
+from langchain.chat_models import AzureChatOpenAI
+
 # COmmented out lines
             # 3. Apply **LIMIT {top_k}** unless the user explicitly specifies a different limit in their query. The value of `top_k` is dynamically set to **30** by default for this session, ensuring the response includes at most 30 results unless overridden by user input.
             # - If no explicit limit is mentioned in the query, default to **LIMIT {top_k}**, where `top_k=30` for this session.
@@ -24,7 +28,15 @@ from collections import defaultdict
 
 load_dotenv()
 # OpenAI API Key
-openai_api_key = os.getenv("OPEN_API_KEY")
+# openai_api_key = os.getenv("OPEN_API_KEY")
+
+
+
+AZURE_OPENAI_API_KEY = os.getenv("AZURE_OPENAI_API_KEY")
+AZURE_OPENAI_ENDPOINT = os.getenv("AZURE_OPENAI_ENDPOINT")
+AZURE_OPENAI_DEPLOYMENT_NAME = os.getenv("AZURE_OPENAI_DEPLOYMENT_NAME")
+OPENAI_API_VERSION = os.getenv("OPENAI_API_VERSION")
+
 
 # Initialize FastAPI application
 app = FastAPI()
@@ -182,16 +194,21 @@ async def handle_query(userinput: ModelInput, db: SQLDatabase = Depends(get_db_c
 
    
         if userinput.user_query and userinput.user_query.strip():
-            llm = ChatOpenAI(
-                model="gpt-4o",
-                temperature=0,
-                streaming=True,
-                verbose=False,
-                openai_api_key=openai_api_key
-            )
-    
+            # llm = ChatOpenAI(
+            #     model="gpt-4o",
+            #     temperature=0,
+            #     streaming=True,
+            #     verbose=False,
+            #     openai_api_key=openai_api_key
+            # )
+            llm = AzureChatOpenAI(
+            api_key=AZURE_OPENAI_API_KEY,
+            azure_endpoint=AZURE_OPENAI_ENDPOINT,
+            api_version=OPENAI_API_VERSION,
+        )  
+                
             # SQL Agent Setup
-            toolkit = SQLDatabaseToolkit(llm=llm, db=db)
+            # toolkit = SQLDatabaseToolkit(llm=llm, db=db)
             agent_executor = create_sql_agent(llm, db=db, agent_type="openai-tools", verbose=True)
 
             # Metadata and Instruction Context
