@@ -16,8 +16,11 @@ import ast
 from collections import defaultdict
 
 
-from langchain.chat_models import ChatOpenAI  # Or equivalent BaseLanguageModel
-from langchain.chat_models import AzureChatOpenAI
+# from langchain.chat_models import ChatOpenAI  # Or equivalent BaseLanguageModel
+# from langchain.chat_models import AzureChatOpenAI
+from langchain_openai import AzureChatOpenAI
+
+
 
 # COmmented out lines
             # 3. Apply **LIMIT {top_k}** unless the user explicitly specifies a different limit in their query. The value of `top_k` is dynamically set to **30** by default for this session, ensuring the response includes at most 30 results unless overridden by user input.
