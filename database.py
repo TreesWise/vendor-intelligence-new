@@ -6,7 +6,6 @@ from dotenv import load_dotenv
 import os
 
 load_dotenv()
-
 API_TOKEN = os.getenv("API_TOKEN")
 HOST = os.getenv("HOST")
 WAREHOUSE_ID = os.getenv("WAREHOUSE_ID")
